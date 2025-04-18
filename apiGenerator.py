@@ -6,7 +6,7 @@ import openai
 
 # --- Spoonacular API Key ---
 API_KEY = st.secrets["SPOONACULAR_API_KEY"]
-client = openai.OpenAI(api_key=["OPENAI_API_KEY"])
+client = openai.OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 # --- Helper Functions ---
 def get_recipes_by_ingredients(ingredients, number=5):
