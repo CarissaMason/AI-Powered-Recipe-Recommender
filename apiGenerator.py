@@ -58,7 +58,7 @@ if "trigger_search" not in st.session_state:
     st.session_state.trigger_search = False
 
 # --- Sidebar ---
-st.sidebar.title("Settings")
+st.sidebar.title("Ingredient Search")
 st.sidebar.markdown("Customize your recipe search")
 
 keyword_input = st.sidebar.text_input("Enter ingredients (comma-separated):", "chicken, rice")
@@ -66,8 +66,26 @@ ingredient_selection = [i.strip().lower() for i in keyword_input.split(",") if i
 num_results = st.sidebar.slider("Number of Recipes", 1, 10, 5)
 
 # --- MAIN APP ---
-st.title("AI-Powered Ingredient Recipe Generator")
+st.title("AI-Powered Recipe Generator")
 st.write("Find recipes using the ingredients you have.")
+# --- AI Cooking Assistant ---
+st.markdown("## Ask the Cooking Assistant")
+user_input = st.text_input("Ask a cooking question (e.g., What can I substitute for eggs?)")
+if user_input:
+    with st.spinner("Thinking..."):
+        try:
+            response = client.chat.completions.create(
+                model="gpt-3.5-turbo",
+                messages=[
+                    {"role": "system", "content": "You are a helpful home cooking assistant. Be concise and friendly."},
+                    {"role": "user", "content": user_input}
+                ]
+            )
+            answer = response.choices[0].message.content
+            st.markdown(f"**Assistant:** {answer}")
+        except Exception as e:
+            st.error("Something went wrong. Please check your API key or try again later.")
+            st.text(str(e))
 
 if st.sidebar.button("Find Recipes", key="find_recipes") and ingredient_selection:
     st.session_state.recipes = get_recipes_by_ingredients(ingredient_selection, number=num_results)
@@ -153,22 +171,3 @@ if st.session_state.favorites:
     st.download_button("Download Favorites", txt_data, file_name="favorite_recipes.txt")
 else:
     st.info("No favorite recipes saved yet.")
-
-# --- AI Cooking Assistant ---
-st.markdown("## Ask the Cooking Assistant")
-user_input = st.text_input("Ask a cooking question (e.g., What can I substitute for eggs?)")
-if user_input:
-    with st.spinner("Thinking..."):
-        try:
-            response = client.chat.completions.create(
-                model="gpt-3.5-turbo",
-                messages=[
-                    {"role": "system", "content": "You are a helpful home cooking assistant. Be concise and friendly."},
-                    {"role": "user", "content": user_input}
-                ]
-            )
-            answer = response.choices[0].message.content
-            st.markdown(f"**Assistant:** {answer}")
-        except Exception as e:
-            st.error("Something went wrong. Please check your API key or try again later.")
-            st.text(str(e))
